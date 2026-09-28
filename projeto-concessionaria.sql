@@ -2,7 +2,7 @@
 -- PROJETO BANCO DE DADOS - CONCESSIONÁRIA DE VEÍCULOS
 -- ==========================================================
 -- Banco: MySQL
--- Descrição: Estrutura do banco + consultas e operações DML
+-- Descrição: Estrutura do banco, dados de teste e consultas
 -- ==========================================================
 
 CREATE DATABASE IF NOT EXISTS carros;
@@ -88,13 +88,38 @@ CREATE TABLE manutencoes (
     FOREIGN KEY (inventario_id) REFERENCES inventario(id)
 );
 
+
 -- ==========================================================
--- 2. CONSULTAS E OPERAÇÕES DML
+-- 2. INSERÇÃO DE DADOS DE TESTE 
+-- ==========================================================
+
+INSERT INTO marcas (nome_marca) VALUES 
+('Toyota'), 
+('Honda'), 
+('Volkswagen'), 
+('BMW');
+
+INSERT INTO inventario (modelo, transmissao, motor, combustivel, preco, ano_fabricacao, status, marcas_id) VALUES 
+('Corolla', 'Automatica', '2.0', 'Flex', 120000.00, 2021, 'Vendido', 1),
+('Civic', 'Automatica', '1.5 Turbo', 'Gasolina', 110000.00, 2020, 'Vendido', 2),
+('Golf', 'Manual', '1.4 TSI', 'Flex', 85000.00, 2019, 'Disponivel', 3),
+('320i', 'Automatica', '2.0', 'Gasolina', 210000.00, 2022, 'Vendido', 4);
+
+INSERT INTO clientes (nome, sobrenome, endereco, numero) VALUES 
+('Ana', 'Silva', 'Rua das Flores', '123'),
+('Carlos', 'Oliveira', 'Av. Central', '456');
+
+INSERT INTO pagamentos (valor, forma_pagamento, status, clientes_id, inventario_id) VALUES 
+(120000.00, 'Pix', 'Aprovado', 1, 1),
+(110000.00, 'Financiamento', 'Aprovado', 2, 2),
+(85000.00, 'Cartao', 'Cancelado', 1, 3);
+
+
+-- ==========================================================
+-- 3. CONSULTAS E OPERAÇÕES
 -- ==========================================================
 
 -- 1. Faturamento total e quantidade de vendas por marca
--- Objetivo: identificar quais marcas possuem maior receita.
-
 SELECT
     m.nome_marca AS marca,
     COUNT(p.id) AS total_vendas,
@@ -107,10 +132,7 @@ GROUP BY m.nome_marca
 ORDER BY receita_total DESC;
 
 
--- 2. Clientes que possuem pagamentos acima de R$ 100.000,00
--- Objetivo: listar clientes e veículos associados a pagamentos
--- de alto valor.
-
+-- 2. Clientes com pagamentos acima de R$ 100.000,00
 SELECT
     CONCAT(c.nome, ' ', c.sobrenome) AS cliente,
     i.modelo AS veiculo_comprado,
@@ -124,10 +146,7 @@ WHERE p.valor >= 100000.00
 ORDER BY p.valor DESC;
 
 
--- 3. Atualização de preços em lote
--- Cenário: aplicar desconto de 5% em carros fabricados
--- até 2020 que ainda estão disponíveis.
-
+-- 3. Aplicar desconto de 5% em carros até 2020 disponíveis
 UPDATE inventario
 SET preco = preco * 0.95
 WHERE ano_fabricacao <= 2020
@@ -135,10 +154,6 @@ WHERE ano_fabricacao <= 2020
 
 
 -- 4. Limpeza de pagamentos cancelados
--- Cenário: remover registros de pagamentos cancelados.
--- A coluna status foi adicionada à tabela pagamentos
--- para permitir essa operação.
-
 DELETE FROM pagamentos
 WHERE status = 'Cancelado';
 
